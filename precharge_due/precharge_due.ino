@@ -49,39 +49,34 @@ void loop()
           if (timer >= 5000)
           {
             digitalWrite(RELAY_PIN, HIGH);
-            Serial.print("Set digitial high");
+            Serial.print("Set digitial high\n");
           }
           else
           {
             digitalWrite(RELAY_PIN, LOW);
-            Serial.print("Set digitial low");
+            Serial.print("Set digitial low\n");
           }
           if (timer < 6000)
           {
             if (canTx(0, 0x6B4, false, cTxOn, 1) != CAN_OK) {
-              Serial.print("Error sending message");
+              Serial.print("Error sending message\n");
             }
           }
           else
           {
             if (canTx(0, 0x6B4, false, cTxOff, 1) != CAN_OK) {
-              Serial.print("Error sending message");
+              Serial.print("Error sending message\n");
             }
           }
           Serial.print("Discharge enabled");
-          Serial.print("\n\r"); 
+          Serial.print("\n"); 
         }
         else
         {
-          Serial.print("Set digital low");
+          Serial.print("Set digital low\n");
           digitalWrite(RELAY_PIN, LOW);
         }
       }
-    }
-    else
-    {
-      Serial.print("Set digital low");
-      digitalWrite(RELAY_PIN, LOW);
     } // end if
 
   }// end while
