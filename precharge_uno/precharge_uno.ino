@@ -14,11 +14,12 @@ if
 (digitalRead (input_pin)== HIGH) 
 {
   digitalWrite (output_pin, LOW);
-  Serial.print("Made it\n"); 
+  Serial.print("Setting low\n"); 
 }
 else
 {
   digitalWrite (output_pin, HIGH);
+  Serial.print("Setting high\n");
 }
 delay (1);
 

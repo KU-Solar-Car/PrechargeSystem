@@ -6,6 +6,7 @@ extern byte canTx(byte cPort, long lMsgID, bool bExtendedFormat, byte* cData, by
 extern byte canRx(byte cPort, long* lMsgID, bool* bExtendedFormat, byte* cData, byte* cDataLen);
 
 const int RELAY_PIN = 2;
+const int CAN_THRESHOLD = 3 * 1000;
 
 void setup()
 {
@@ -26,6 +27,8 @@ void setup()
 void loop()
 {  
   int timer = 0;
+  int lastCanFrame = 0;
+
   while(1)  // Endless loop
   {
     delay(1);
@@ -38,10 +41,13 @@ void loop()
     byte cDataLen;
     byte cTxOn[] = {0x1};
     byte cTxOff[] = {0x0};
+
+    
     if(canRx(0, &lMsgID, &bExtendedFormat, &cRxData[0], &cDataLen) == CAN_OK)
     {
       if (lMsgID == 0x6B5) 
       {
+        lastCanFrame = timer;
         byte relayState = cRxData[0];
 
         if (relayState & 1) 
@@ -78,6 +84,12 @@ void loop()
         }
       }
     } // end if
+
+    if (timer - lastCanFrame > CAN_THRESHOLD) 
+    {
+      Serial.print("Set digital low\n");
+      digitalWrite(RELAY_PIN, LOW);
+    }
 
   }// end while
 
