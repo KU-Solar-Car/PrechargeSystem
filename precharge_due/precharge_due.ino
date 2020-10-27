@@ -14,7 +14,7 @@ void setup()
   Serial.begin(115200);
 
   pinMode(RELAY_PIN, OUTPUT);
-  digitalWrite(RELAY_PIN, LOW);
+  digitalWrite(RELAY_PIN, HIGH);
   
   // Initialize both CAN controllers
   if(canInit(0, CAN_BPS_250K) == CAN_OK)
@@ -42,7 +42,6 @@ void loop()
     byte cTxOn[] = {0x1};
     byte cTxOff[] = {0x0};
 
-    
     if(canRx(0, &lMsgID, &bExtendedFormat, &cRxData[0], &cDataLen) == CAN_OK)
     {
       if (lMsgID == 0x6B5) 
@@ -54,13 +53,13 @@ void loop()
         {
           if (timer >= 5000)
           {
-            digitalWrite(RELAY_PIN, HIGH);
-            Serial.print("Set digitial high\n");
+            digitalWrite(RELAY_PIN, LOW);
+            Serial.print("Set digitial low\n");
           }
           else
           {
-            digitalWrite(RELAY_PIN, LOW);
-            Serial.print("Set digitial low\n");
+            digitalWrite(RELAY_PIN, HIGH);
+            Serial.print("Set digitial high\n");
           }
           if (timer < 6000)
           {
@@ -79,16 +78,16 @@ void loop()
         }
         else
         {
-          Serial.print("Set digital low\n");
-          digitalWrite(RELAY_PIN, LOW);
+          Serial.print("Set digital high\n");
+          digitalWrite(RELAY_PIN, HIGH);
         }
       }
     } // end if
 
     if (timer - lastCanFrame > CAN_THRESHOLD) 
     {
-      Serial.print("Set digital low\n");
-      digitalWrite(RELAY_PIN, LOW);
+      Serial.print("Set digital high\n");
+      digitalWrite(RELAY_PIN, HIGH);
     }
 
   }// end while
