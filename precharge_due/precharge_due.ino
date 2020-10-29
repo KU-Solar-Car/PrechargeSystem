@@ -5,7 +5,8 @@ extern byte canInit(byte cPort, long lBaudRate);
 extern byte canTx(byte cPort, long lMsgID, bool bExtendedFormat, byte* cData, byte cDataLen);
 extern byte canRx(byte cPort, long* lMsgID, bool* bExtendedFormat, byte* cData, byte* cDataLen);
 
-const int RELAY_PIN = 2;
+const int PRECHARGE_RELAY_PIN = 2;
+const int SOURCE_RELAY_PIN = 3;
 const int CAN_THRESHOLD = 3 * 1000;
 
 void setup()
@@ -13,8 +14,11 @@ void setup()
   // Set the serial interface baud rate
   Serial.begin(115200);
 
-  pinMode(RELAY_PIN, OUTPUT);
-  digitalWrite(RELAY_PIN, HIGH);
+  pinMode(PRECHARGE_RELAY_PIN, OUTPUT);
+  digitalWrite(PRECHARGE_RELAY_PIN, HIGH);
+
+  pinMode(SOURCE_RELAY_PIN, OUTPUT);
+  digitalWrite(SOURCE_RELAY_PIN, HIGH);
   
   // Initialize both CAN controllers
   if(canInit(0, CAN_BPS_250K) == CAN_OK)
@@ -51,25 +55,33 @@ void loop()
 
         if (relayState & 1) 
         {
-          if (timer >= 5000)
+          if (timer >= 6000)
           {
-            digitalWrite(RELAY_PIN, LOW);
-            Serial.print("Set digitial low\n");
+            digitalWrite(SOURCE_RELAY_PIN, LOW);
+            Serial.print("Set source low\n");
+            digitalWrite(PRECHARGE_RELAY_PIN, LOW);
+            Serial.print("Set precharge low\n");
+            if (canTx(0, 0x6B4, false, cTxOff, 1) != CAN_OK) {
+              Serial.print("Error sending message\n");
+            }
           }
-          else
+          else if (timer >= 5000)
           {
-            digitalWrite(RELAY_PIN, HIGH);
-            Serial.print("Set digitial high\n");
-          }
-          if (timer < 6000)
-          {
+            digitalWrite(SOURCE_RELAY_PIN, LOW);
+            Serial.print("Set source low\n");
+            digitalWrite(PRECHARGE_RELAY_PIN, LOW);
+            Serial.print("Set precharge low\n");
             if (canTx(0, 0x6B4, false, cTxOn, 1) != CAN_OK) {
               Serial.print("Error sending message\n");
             }
           }
           else
           {
-            if (canTx(0, 0x6B4, false, cTxOff, 1) != CAN_OK) {
+            digitalWrite(SOURCE_RELAY_PIN, HIGH);
+            Serial.print("Set source high\n");
+            digitalWrite(PRECHARGE_RELAY_PIN, HIGH);
+            Serial.print("Set precharge high\n");
+            if (canTx(0, 0x6B4, false, cTxOn, 1) != CAN_OK) {
               Serial.print("Error sending message\n");
             }
           }
@@ -78,16 +90,20 @@ void loop()
         }
         else
         {
+          Serial.print("Set source high\n");
+          digitalWrite(SOURCE_RELAY_PIN, HIGH);
           Serial.print("Set digital high\n");
-          digitalWrite(RELAY_PIN, HIGH);
+          digitalWrite(PRECHARGE_RELAY_PIN, HIGH);
         }
       }
     } // end if
 
     if (timer - lastCanFrame > CAN_THRESHOLD) 
     {
+      Serial.print("Set source high\n");
+      digitalWrite(SOURCE_RELAY_PIN, HIGH);
       Serial.print("Set digital high\n");
-      digitalWrite(RELAY_PIN, HIGH);
+      digitalWrite(PRECHARGE_RELAY_PIN, HIGH);
     }
 
   }// end while
