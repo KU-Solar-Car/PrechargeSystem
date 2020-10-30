@@ -55,7 +55,7 @@ void loop()
 
         if (relayState & 1) 
         {
-          if (timer >= 6000)
+          if (timer >= 7000)
           {
             digitalWrite(SOURCE_RELAY_PIN, LOW);
             Serial.print("Set source low\n");
@@ -65,10 +65,20 @@ void loop()
               Serial.print("Error sending message\n");
             }
           }
+          else if (timer >= 6000)
+          {
+            digitalWrite(SOURCE_RELAY_PIN, HIGH);
+            Serial.print("Set source high\n");
+            digitalWrite(PRECHARGE_RELAY_PIN, LOW);
+            Serial.print("Set precharge low\n");
+            if (canTx(0, 0x6B4, false, cTxOff, 1) != CAN_OK) {
+              Serial.print("Error sending message\n");
+            }
+          }
           else if (timer >= 5000)
           {
-            digitalWrite(SOURCE_RELAY_PIN, LOW);
-            Serial.print("Set source low\n");
+            digitalWrite(SOURCE_RELAY_PIN, HIGH);
+            Serial.print("Set source high\n");
             digitalWrite(PRECHARGE_RELAY_PIN, LOW);
             Serial.print("Set precharge low\n");
             if (canTx(0, 0x6B4, false, cTxOn, 1) != CAN_OK) {
